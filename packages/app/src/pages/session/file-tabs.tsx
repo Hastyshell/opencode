@@ -91,9 +91,12 @@ export function FileTabContent(props: { tab: string }) {
   const [editing, setEditing] = createSignal(false)
   const [draft, setDraft] = createSignal("")
   const [conflict, setConflict] = createSignal(false)
+  const [baseline, setBaseline] = createSignal("")
 
   const startEdit = () => {
-    setDraft(contents())
+    const c = contents()
+    setBaseline(c)
+    setDraft(c)
     setEditing(true)
     setConflict(false)
   }
@@ -101,6 +104,7 @@ export function FileTabContent(props: { tab: string }) {
   const stopEdit = () => {
     setEditing(false)
     setDraft("")
+    setBaseline("")
     setConflict(false)
   }
 
@@ -114,7 +118,7 @@ export function FileTabContent(props: { tab: string }) {
   createEffect(() => {
     if (!editing()) return
     const current = contents()
-    if (current === draft()) return
+    if (current === baseline()) return
     setConflict(true)
   })
 
@@ -486,7 +490,9 @@ export function FileTabContent(props: { tab: string }) {
             <button
               class="px-2 py-0.5 rounded bg-surface-active hover:bg-surface-hover text-text"
               onClick={() => {
-                setDraft(contents())
+                const c = contents()
+                setBaseline(c)
+                setDraft(c)
                 setConflict(false)
               }}
             >
