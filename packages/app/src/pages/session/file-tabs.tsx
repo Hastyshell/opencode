@@ -7,6 +7,7 @@ import { cloneSelectedLineRange, previewSelectedLines } from "@opencode-ai/ui/pi
 import { createLineCommentController } from "@opencode-ai/ui/line-comment-annotations"
 import { sampledChecksum } from "@opencode-ai/util/encode"
 import { DropdownMenu } from "@opencode-ai/ui/dropdown-menu"
+import { Button } from "@opencode-ai/ui/button"
 import { IconButton } from "@opencode-ai/ui/icon-button"
 import { Tabs } from "@opencode-ai/ui/tabs"
 import { ScrollView } from "@opencode-ai/ui/scroll-view"
@@ -487,8 +488,9 @@ export function FileTabContent(props: { tab: string }) {
         <Show when={conflict()}>
           <div class="flex items-center gap-2 mr-auto text-xs text-warning">
             <span>File changed on disk</span>
-            <button
-              class="px-2 py-0.5 rounded bg-surface-active hover:bg-surface-hover text-text"
+            <Button
+              size="small"
+              variant="ghost"
               onClick={() => {
                 const c = contents()
                 setBaseline(c)
@@ -497,36 +499,24 @@ export function FileTabContent(props: { tab: string }) {
               }}
             >
               Reload
-            </button>
-            <button
-              class="px-2 py-0.5 rounded bg-surface-active hover:bg-surface-hover text-text"
-              onClick={() => setConflict(false)}
-            >
+            </Button>
+            <Button size="small" variant="ghost" onClick={() => setConflict(false)}>
               Keep edits
-            </button>
+            </Button>
           </div>
         </Show>
         <Show when={!editing() && state()?.loaded && state()?.content?.type === "text"}>
-          <button
-            class="px-3 py-1 text-xs rounded bg-surface-active hover:bg-surface-hover text-text"
-            onClick={startEdit}
-          >
+          <Button size="small" variant="secondary" icon="pencil-line" onClick={startEdit}>
             {language.t("common.edit")}
-          </button>
+          </Button>
         </Show>
         <Show when={editing()}>
-          <button
-            class="px-3 py-1 text-xs rounded bg-surface-active hover:bg-surface-hover text-text"
-            onClick={stopEdit}
-          >
+          <Button size="small" variant="ghost" onClick={stopEdit}>
             {language.t("common.cancel")}
-          </button>
-          <button
-            class="px-3 py-1 text-xs rounded bg-primary text-primary-foreground hover:bg-primary/90"
-            onClick={() => handleSave(draft())}
-          >
+          </Button>
+          <Button size="small" variant="primary" onClick={() => handleSave(draft())}>
             {language.t("common.save")}
-          </button>
+          </Button>
         </Show>
       </div>
       <Show
