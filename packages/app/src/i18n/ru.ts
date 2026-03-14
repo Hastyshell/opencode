@@ -423,6 +423,8 @@ export const dict = {
   "toast.file.loadFailed.title": "Не удалось загрузить файл",
 
   "toast.file.listFailed.title": "Не удалось получить список файлов",
+  "toast.file.saved.title": "File saved",
+  "toast.file.saveFailed.title": "Failed to save file",
   "toast.context.noLineSelection.title": "Нет выделения строк",
   "toast.context.noLineSelection.description": "Сначала выберите диапазон строк во вкладке файла.",
   "toast.session.share.copyFailed.title": "Не удалось скопировать URL в буфер обмена",

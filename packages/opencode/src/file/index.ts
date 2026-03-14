@@ -1,4 +1,5 @@
 import { BusEvent } from "@/bus/bus-event"
+import { Bus } from "@/bus"
 import z from "zod"
 import { formatPatch, structuredPatch } from "diff"
 import path from "path"
@@ -650,5 +651,17 @@ export namespace File {
 
     log.info("search", { query, kind, results: output.length })
     return output
+  }
+
+  export async function write(file: string, content: string): Promise<void> {
+    const full = path.join(Instance.directory, file)
+
+    if (!Instance.containsPath(full)) {
+      throw new Error("Access denied: path escapes project directory")
+    }
+
+    await Filesystem.write(full, content)
+
+    await Bus.publish(Event.Edited, { file })
   }
 }

@@ -421,6 +421,8 @@ export const dict = {
   "toast.file.loadFailed.title": "Kunne ikke indlæse fil",
 
   "toast.file.listFailed.title": "Kunne ikke liste filer",
+  "toast.file.saved.title": "File saved",
+  "toast.file.saveFailed.title": "Failed to save file",
   "toast.context.noLineSelection.title": "Ingen linjevalg",
   "toast.context.noLineSelection.description": "Vælg først et linjeinterval i en filfane.",
   "toast.session.share.copyFailed.title": "Kunne ikke kopiere URL til udklipsholder",

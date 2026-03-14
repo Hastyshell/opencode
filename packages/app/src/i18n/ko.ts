@@ -384,6 +384,8 @@ export const dict = {
   "toast.model.none.description": "이 세션을 요약하려면 공급자를 연결하세요",
   "toast.file.loadFailed.title": "파일 로드 실패",
   "toast.file.listFailed.title": "파일 목록을 불러오지 못했습니다",
+  "toast.file.saved.title": "File saved",
+  "toast.file.saveFailed.title": "Failed to save file",
   "toast.context.noLineSelection.title": "줄 선택 없음",
   "toast.context.noLineSelection.description": "먼저 파일 탭에서 줄 범위를 선택하세요.",
   "toast.session.share.copyFailed.title": "URL 클립보드 복사 실패",

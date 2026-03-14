@@ -1,4 +1,4 @@
-import { createEffect, createMemo, Match, on, onCleanup, Switch } from "solid-js"
+import { createEffect, createMemo, createSignal, Match, on, onCleanup, Show, Switch } from "solid-js"
 import { createStore } from "solid-js/store"
 import { Dynamic } from "solid-js/web"
 import type { FileSearchHandle } from "@opencode-ai/ui/file"
@@ -18,6 +18,7 @@ import { usePrompt } from "@/context/prompt"
 import { getSessionHandoff } from "@/pages/session/handoff"
 import { useSessionLayout } from "@/pages/session/session-layout"
 import { createSessionTabs } from "@/pages/session/helpers"
+import { Editor } from "@/components/editor"
 
 function FileCommentMenu(props: {
   moreLabel: string
@@ -86,6 +87,37 @@ export function FileTabContent(props: { tab: string }) {
   })
   const contents = createMemo(() => state()?.content?.content ?? "")
   const cacheKey = createMemo(() => sampledChecksum(contents()))
+
+  const [editing, setEditing] = createSignal(false)
+  const [draft, setDraft] = createSignal("")
+  const [conflict, setConflict] = createSignal(false)
+
+  const startEdit = () => {
+    setDraft(contents())
+    setEditing(true)
+    setConflict(false)
+  }
+
+  const stopEdit = () => {
+    setEditing(false)
+    setDraft("")
+    setConflict(false)
+  }
+
+  const handleSave = async (content: string) => {
+    const p = path()
+    if (!p) return
+    await file.save(p, content)
+    stopEdit()
+  }
+
+  createEffect(() => {
+    if (!editing()) return
+    const current = contents()
+    if (current === draft()) return
+    setConflict(true)
+  })
+
   const selectedLines = createMemo<SelectedLineRange | null>(() => {
     const p = path()
     if (!p) return null
@@ -446,23 +478,80 @@ export function FileTabContent(props: { tab: string }) {
   )
 
   return (
-    <Tabs.Content value={props.tab} class="mt-3 relative h-full">
-      <ScrollView
-        class="h-full"
-        viewportRef={(el: HTMLDivElement) => {
-          scroll = el
-          restoreScroll()
-        }}
-        onScroll={handleScroll as any}
+    <Tabs.Content value={props.tab} class="mt-3 relative h-full flex flex-col">
+      <div class="flex items-center justify-end gap-2 px-4 py-1 border-b border-border shrink-0">
+        <Show when={conflict()}>
+          <div class="flex items-center gap-2 mr-auto text-xs text-warning">
+            <span>File changed on disk</span>
+            <button
+              class="px-2 py-0.5 rounded bg-surface-active hover:bg-surface-hover text-text"
+              onClick={() => {
+                setDraft(contents())
+                setConflict(false)
+              }}
+            >
+              Reload
+            </button>
+            <button
+              class="px-2 py-0.5 rounded bg-surface-active hover:bg-surface-hover text-text"
+              onClick={() => setConflict(false)}
+            >
+              Keep edits
+            </button>
+          </div>
+        </Show>
+        <Show when={!editing() && state()?.loaded && state()?.content?.type === "text"}>
+          <button
+            class="px-3 py-1 text-xs rounded bg-surface-active hover:bg-surface-hover text-text"
+            onClick={startEdit}
+          >
+            {language.t("common.edit")}
+          </button>
+        </Show>
+        <Show when={editing()}>
+          <button
+            class="px-3 py-1 text-xs rounded bg-surface-active hover:bg-surface-hover text-text"
+            onClick={stopEdit}
+          >
+            {language.t("common.cancel")}
+          </button>
+          <button
+            class="px-3 py-1 text-xs rounded bg-primary text-primary-foreground hover:bg-primary/90"
+            onClick={() => handleSave(draft())}
+          >
+            {language.t("common.save")}
+          </button>
+        </Show>
+      </div>
+      <Show
+        when={!editing()}
+        fallback={
+          <Editor
+            content={draft()}
+            path={path() ?? ""}
+            onChange={setDraft}
+            onSave={handleSave}
+            class="h-full min-h-[500px]"
+          />
+        }
       >
-        <Switch>
-          <Match when={state()?.loaded}>{renderFile(contents())}</Match>
-          <Match when={state()?.loading}>
-            <div class="px-6 py-4 text-text-weak">{language.t("common.loading")}...</div>
-          </Match>
-          <Match when={state()?.error}>{(err) => <div class="px-6 py-4 text-text-weak">{err()}</div>}</Match>
-        </Switch>
-      </ScrollView>
+        <ScrollView
+          class="h-full"
+          viewportRef={(el: HTMLDivElement) => {
+            scroll = el
+            restoreScroll()
+          }}
+          onScroll={handleScroll as any}
+        >
+          <Switch>
+            <Match when={state()?.loaded}>{renderFile(contents())}</Match>
+            <Match when={state()?.loading}>
+              <div class="px-6 py-4 text-text-weak">{language.t("common.loading")}...</div>
+            </Match>
+            <Match when={state()?.error}>{(err) => <div class="px-6 py-4 text-text-weak">{err()}</div>}</Match>
+          </Switch>
+        </ScrollView>
+      </Show>
     </Tabs.Content>
   )
 }
