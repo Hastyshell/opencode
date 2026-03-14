@@ -200,6 +200,7 @@ export const { use: useFile, provider: FileProvider } = createSimpleContext({
 
       try {
         await sdk.client.file.write({ path: file, content })
+        await load(file, { force: true })
         showToast({
           variant: "success",
           title: language.t("toast.file.saved.title"),
