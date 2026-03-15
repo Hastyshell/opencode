@@ -4192,6 +4192,30 @@ export type FileStatusResponses = {
 
 export type FileStatusResponse = FileStatusResponses[keyof FileStatusResponses]
 
+export type FileWriteData = {
+  body: {
+    path: string
+    content: string
+  }
+  path?: never
+  query?: {
+    directory?: string
+    workspace?: string
+  }
+  url: "/file/content"
+}
+
+export type FileWriteResponses = {
+  /**
+   * File written
+   */
+  200: {
+    success: boolean
+  }
+}
+
+export type FileWriteResponse = FileWriteResponses[keyof FileWriteResponses]
+
 export type McpStatusData = {
   body?: never
   path?: never

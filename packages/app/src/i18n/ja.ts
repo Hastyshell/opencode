@@ -381,6 +381,8 @@ export const dict = {
   "toast.model.none.description": "このセッションを要約するにはプロバイダーを接続してください",
   "toast.file.loadFailed.title": "ファイルの読み込みに失敗しました",
   "toast.file.listFailed.title": "ファイル一覧の取得に失敗しました",
+  "toast.file.saved.title": "File saved",
+  "toast.file.saveFailed.title": "Failed to save file",
   "toast.context.noLineSelection.title": "行が選択されていません",
   "toast.context.noLineSelection.description": "まずファイルタブで行範囲を選択してください。",
   "toast.session.share.copyFailed.title": "URLのコピーに失敗しました",

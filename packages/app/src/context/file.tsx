@@ -194,6 +194,26 @@ export const { use: useFile, provider: FileProvider } = createSimpleContext({
       return promise
     }
 
+    const save = async (input: string, content: string) => {
+      const file = path.normalize(input)
+      if (!file) return
+
+      try {
+        await sdk.client.file.write({ path: file, content })
+        await load(file, { force: true })
+        showToast({
+          variant: "success",
+          title: language.t("toast.file.saved.title"),
+        })
+      } catch (e) {
+        showToast({
+          variant: "error",
+          title: language.t("toast.file.saveFailed.title"),
+          description: errorMessage(e),
+        })
+      }
+    }
+
     const search = (query: string, dirs: "true" | "false") =>
       sdk.client.find.files({ query, dirs }).then(
         (x) => (x.data ?? []).map(path.normalize),
@@ -267,6 +287,7 @@ export const { use: useFile, provider: FileProvider } = createSimpleContext({
       },
       get,
       load,
+      save,
       scrollTop,
       scrollLeft,
       setScrollTop,

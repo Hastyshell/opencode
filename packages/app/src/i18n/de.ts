@@ -389,6 +389,8 @@ export const dict = {
   "toast.model.none.description": "Verbinden Sie einen Anbieter, um diese Sitzung zusammenzufassen",
   "toast.file.loadFailed.title": "Datei konnte nicht geladen werden",
   "toast.file.listFailed.title": "Dateien konnten nicht aufgelistet werden",
+  "toast.file.saved.title": "File saved",
+  "toast.file.saveFailed.title": "Failed to save file",
   "toast.context.noLineSelection.title": "Keine Zeilenauswahl",
   "toast.context.noLineSelection.description": "Wählen Sie zuerst einen Zeilenbereich in einem Datei-Tab aus.",
   "toast.session.share.copyFailed.title": "URL konnte nicht in die Zwischenablage kopiert werden",

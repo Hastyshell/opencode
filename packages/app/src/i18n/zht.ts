@@ -420,6 +420,8 @@ export const dict = {
   "toast.file.loadFailed.title": "載入檔案失敗",
 
   "toast.file.listFailed.title": "列出檔案失敗",
+  "toast.file.saved.title": "File saved",
+  "toast.file.saveFailed.title": "Failed to save file",
   "toast.context.noLineSelection.title": "未選取行",
   "toast.context.noLineSelection.description": "請先在檔案分頁中選取行範圍。",
   "toast.session.share.copyFailed.title": "無法複製連結到剪貼簿",

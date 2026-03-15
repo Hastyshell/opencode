@@ -422,6 +422,8 @@ export const dict = {
 
   "toast.file.loadFailed.title": "Neuspjelo učitavanje datoteke",
   "toast.file.listFailed.title": "Neuspješno listanje datoteka",
+  "toast.file.saved.title": "File saved",
+  "toast.file.saveFailed.title": "Failed to save file",
 
   "toast.context.noLineSelection.title": "Nema odabranih linija",
   "toast.context.noLineSelection.description": "Prvo odaberi raspon linija u kartici datoteke.",
