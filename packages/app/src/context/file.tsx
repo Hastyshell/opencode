@@ -209,7 +209,7 @@ export const { use: useFile, provider: FileProvider } = createSimpleContext({
         showToast({
           variant: "error",
           title: language.t("toast.file.saveFailed.title"),
-          description: errorMessage(e),
+          description: errorMessage(e, language.t("error.chain.unknown")),
         })
       }
     }

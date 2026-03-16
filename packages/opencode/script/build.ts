@@ -9,6 +9,7 @@ import solidPlugin from "@opentui/solid/bun-plugin"
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const dir = path.resolve(__dirname, "..")
+const app = path.resolve(dir, "../app")
 
 process.chdir(dir)
 
@@ -145,6 +146,8 @@ const targets = singleFlag
   : allTargets
 
 await $`rm -rf dist`
+console.log("building web")
+await $`bun run build`.cwd(app)
 
 const binaries: Record<string, string> = {}
 if (!skipInstall) {
@@ -200,6 +203,8 @@ for (const item of targets) {
   })
 
   await $`rm -rf ./dist/${name}/bin/tui`
+  await $`rm -rf ./dist/${name}/bin/web`
+  await $`cp -R ../app/dist ./dist/${name}/bin/web`
   await Bun.file(`dist/${name}/package.json`).write(
     JSON.stringify(
       {

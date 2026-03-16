@@ -45,12 +45,72 @@ import { PermissionRoutes } from "./routes/permission"
 import { GlobalRoutes } from "./routes/global"
 import { MDNS } from "./mdns"
 import { lazy } from "@/util/lazy"
+import path from "path"
 
 // @ts-ignore This global is needed to prevent ai-sdk from logging warnings to stdout https://github.com/vercel/ai/blob/2dc67e0ef538307f21368db32d5a12345d98831b/packages/ai/src/logger/log-warnings.ts#L85
 globalThis.AI_SDK_LOG_WARNINGS = false
 
+const csp =
+  "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; media-src 'self' data:; connect-src 'self' data:"
+
+function secure(res: Response) {
+  res.headers.set("Content-Security-Policy", csp)
+  return res
+}
+
 export namespace Server {
   const log = Log.create({ service: "server" })
+  const web = lazy(() => {
+    const root = path.dirname(process.execPath)
+    return [
+      path.join(root, "web"),
+      path.resolve(import.meta.dir, "../../../app/dist"),
+      path.resolve(process.cwd(), "packages/app/dist"),
+    ].find((item) => Filesystem.stat(item)?.isDirectory())
+  })
+
+  function asset(root: string, input: string) {
+    const rel = input === "/" ? "index.html" : input.replace(/^\/+/, "")
+    const file = path.resolve(root, rel)
+    if (file !== root && !file.startsWith(root + path.sep)) return
+    if (Filesystem.stat(file)?.isFile()) return file
+    if (path.extname(rel)) return
+    const index = path.join(root, "index.html")
+    if (Filesystem.stat(index)?.isFile()) return index
+  }
+
+  function page(method: string, input: string) {
+    const root = web()
+    if (!root) return
+    if (method !== "GET" && method !== "HEAD") {
+      return secure(
+        new Response("Not found", {
+          status: 404,
+          headers: {
+            "Content-Type": "text/plain; charset=utf-8",
+          },
+        }),
+      )
+    }
+    const file = asset(root, input)
+    if (!file) {
+      return secure(
+        new Response("Not found", {
+          status: 404,
+          headers: {
+            "Content-Type": "text/plain; charset=utf-8",
+          },
+        }),
+      )
+    }
+    return secure(
+      new Response(Bun.file(file), {
+        headers: {
+          "Content-Type": Filesystem.mimeType(file),
+        },
+      }),
+    )
+  }
 
   export const Default = lazy(() => createApp({}))
 
@@ -555,20 +615,18 @@ export namespace Server {
         },
       )
       .all("/*", async (c) => {
-        const path = c.req.path
+        const local = page(c.req.method, c.req.path)
+        if (local) return local
 
-        const response = await proxy(`https://app.opencode.ai${path}`, {
-          ...c.req,
-          headers: {
-            ...c.req.raw.headers,
-            host: "app.opencode.ai",
-          },
-        })
-        response.headers.set(
-          "Content-Security-Policy",
-          "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; media-src 'self' data:; connect-src 'self' data:",
+        return secure(
+          await proxy(`https://app.opencode.ai${c.req.path}`, {
+            ...c.req,
+            headers: {
+              ...c.req.raw.headers,
+              host: "app.opencode.ai",
+            },
+          }),
         )
-        return response
       })
   }
 
