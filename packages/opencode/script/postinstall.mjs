@@ -62,7 +62,7 @@ function findBinary() {
       throw new Error(`Binary not found at ${binaryPath}`)
     }
 
-    return { binaryPath, binaryName }
+    return { binaryPath, binaryName, packageDir }
   } catch (error) {
     throw new Error(`Could not find package ${packageName}: ${error.message}`)
   }
@@ -97,6 +97,18 @@ function symlinkBinary(sourcePath, binaryName) {
   }
 }
 
+function stageWeb(packageDir) {
+  const source = path.join(packageDir, "bin", "web")
+  if (!fs.existsSync(source)) return
+  const target = path.join(__dirname, "bin", "web")
+  fs.rmSync(target, { recursive: true, force: true })
+  try {
+    fs.symlinkSync(source, target, "dir")
+    return
+  } catch {}
+  fs.cpSync(source, target, { recursive: true })
+}
+
 async function main() {
   try {
     if (os.platform() === "win32") {
@@ -108,7 +120,7 @@ async function main() {
 
     // On non-Windows platforms, just verify the binary package exists
     // Don't replace the wrapper script - it handles binary execution
-    const { binaryPath } = findBinary()
+    const { binaryPath, packageDir } = findBinary()
     const target = path.join(__dirname, "bin", ".opencode")
     if (fs.existsSync(target)) fs.unlinkSync(target)
     try {
@@ -117,6 +129,7 @@ async function main() {
       fs.copyFileSync(binaryPath, target)
     }
     fs.chmodSync(target, 0o755)
+    stageWeb(packageDir)
   } catch (error) {
     console.error("Failed to setup opencode binary:", error.message)
     process.exit(1)
